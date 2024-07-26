@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Files in Browser</title>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            font-family: "Inter", sans-serif;
+            background: #1e1a4c;
+            color: #ffffff;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Prevent scrolling if necessary */
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.2); /* Transparent white */
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%; /* Full width */
+            height: 100%;
+            max-width: 1200px; /* Maximum width */
+            box-sizing: border-box;
+        }
+
+        .file-list {
+            margin-top: 20px;
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .file-item {
+            background: #ffffff;
+            color: #1e1a4c;
+            padding: 10px;
+            border-radius: 8px;
+            width: calc(50% - 15px); /* Adjust width for 2 items per row with gap */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .file-preview {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .file-preview img,
+        .file-preview iframe {
+            width: 100%;
+            height: auto;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px; /* Space between buttons */
+        }
+
+        .open-button,
+        .download-button {
+            background: none; /* No background */
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .open-button svg,
+        .download-button svg {
+            width: 24px;
+            height: 24px;
+            fill: #ff0000; /* SVG fill color */
+            transition: fill 0.3s;
+        }
+
+        .open-button:hover svg,
+        .download-button:hover svg {
+            fill: #0056b3; /* Change SVG fill color on hover */
+        }
+
+        .open-button:active,
+        .download-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Available Files</h1>
+        <ul id="fileList" class="file-list"></ul>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKLdPiOug6UCteydbtuRVRde7LYEA9ZGw",
+            authDomain: "up-loder.firebaseapp.com",
+            projectId: "up-loder",
+            storageBucket: "up-loder.appspot.com",
+            messagingSenderId: "205322823516",
+            appId: "1:205322823516:android:a8b5afb2250e67081d0399"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Reference to the 'uploads' node
+        const uploadsRef = database.ref('uploads');
+
+        // Function to fetch files and display download and open links
+        function loadFiles() {
+            uploadsRef.on('value', snapshot => {
+                const files = snapshot.val();
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = ''; // Clear the file list
+
+                for (const key in files) {
+                    if (files.hasOwnProperty(key)) {
+                        const file = files[key];
+                        const listItem = document.createElement('li');
+                        listItem.className = 'file-item';
+
+                        // Create a preview element based on file type
+                        const filePreview = document.createElement('div');
+                        filePreview.className = 'file-preview';
+
+                        // Check file type and provide appropriate preview or icon
+                        if (file.type.startsWith('image/')) {
+                            const img = document.createElement('img');
+                            img.src = file.url; // Use direct URL from Firebase Storage
+                            img.alt = file.name;
+                            filePreview.appendChild(img);
+                        } else if (file.type === 'application/pdf') {
+                            const iframe = document.createElement('iframe');
+                            iframe.src = file.url; // Use direct URL from Firebase Storage
+                            iframe.alt = file.name;
+                            filePreview.appendChild(iframe);
+                        } else if (file.type === 'application/zip') {
+                            const img = document.createElement('img');
+                            img.src = 'zip.png'; // Path to your ZIP PNG image
+                            img.alt = 'ZIP file';
+                            filePreview.appendChild(img);
+                        } else if (file.type === 'text/csv') {
+                            const img = document.createElement('img');
+                            img.src = 'csv.png'; // Path to your CSV PNG image
+                            img.alt = 'CSV file';
+                            filePreview.appendChild(img);
+                        } else {
+                            filePreview.textContent = 'Preview not available for this file type.';
+                        }
+
+                        listItem.appendChild(filePreview);
+
+                        // Create open link with SVG button
+                        const openLink = document.createElement('a');
+                        openLink.href = file.url; // Use direct URL from Firebase Storage
+                        openLink.target = '_blank';
+                        openLink.className = 'open-button';
+                        openLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8l-6-5zM5 21V5h8v4h4v12H5zm12-6h-4v-2h4v2z"/></svg>`;
+                        
+                        // Create download link with SVG button
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = file.url; // Use direct URL from Firebase Storage
+                        downloadLink.download = file.name;
+                        downloadLink.className = 'download-button';
+                        downloadLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11 15H7v-4h4v4zm5 0h-4v-4h4v4zm1-6V3H4v6h12zM21 2h-6v4H5V2H2v14h3v4h14v-4h3V2zm-2 12H3V4h16v10z"/></svg>`;
+
+                        listItem.appendChild(openLink);
+                        listItem.appendChild(downloadLink);
+                        fileList.appendChild(listItem);
+                    }
+                }
+            });
+        }
+
+        loadFiles();
+    </script>
+</body>
+</html>
