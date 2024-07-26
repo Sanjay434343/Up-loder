@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+        margin: 0;
+    }
+    
+    .container {
+        text-align: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+        color: #007bff;
+    }
+    
+    input[type="file"] {
+        margin: 20px 0;
+    }
+    
+    button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    button:hover {
+        background-color: #0056b3;
+    }
+    
+    #status {
+        margin-top: 20px;
+        color: #333;
+    }
+    
+  </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload your file</h1>
+        <input type="file" id="fileInput" accept="image/*,.zip,.csv,.xls,.xlsx,.pdf,.txt">
+        <button id="uploadButton">Upload</button>
+        <p id="status"></p>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script>
+        // Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAKLdPiOug6UCteydbtuRVRde7LYEA9ZGw",
+    authDomain: "up-loder.firebaseapp.com",
+    projectId: "up-loder",
+    storageBucket: "up-loder.appspot.com",
+    messagingSenderId: "205322823516",
+    appId: "1:205322823516:android:a8b5afb2250e67081d0399"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+
+document.getElementById('uploadButton').addEventListener('click', () => {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    if (!file) {
+        document.getElementById('status').textContent = 'Please select a file.';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = function() {
+        const base64String = reader.result.split(',')[1];
+        const uploadTask = storage.ref(`uploads/${file.name}`).putString(base64String, 'base64');
+
+        uploadTask.on('state_changed', 
+            (snapshot) => {
+                // Observe state change events such as progress, pause, and resume
+                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                document.getElementById('status').textContent = 'Upload is ' + progress.toFixed(2) + '% done';
+            }, 
+            (error) => {
+                // Handle unsuccessful uploads
+                document.getElementById('status').textContent = 'Upload failed: ' + error.message;
+            }, 
+            () => {
+                // Handle successful uploads on complete
+                document.getElementById('status').textContent = 'Upload successful!';
+            }
+        );
+    };
+    reader.readAsDataURL(file);
+});
+
+    </script>
+</body>
+</html>

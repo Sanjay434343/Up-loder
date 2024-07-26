@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "205322823516",
+    "firebase_url": "https://up-loder-default-rtdb.firebaseio.com",
+    "project_id": "up-loder",
+    "storage_bucket": "up-loder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:205322823516:android:a8b5afb2250e67081d0399",
+        "android_client_info": {
+          "package_name": "com.app.up_loder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKLdPiOug6UCteydbtuRVRde7LYEA9ZGw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
