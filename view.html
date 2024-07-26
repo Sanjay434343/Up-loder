@@ -16,7 +16,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Prevent scrolling if necessary */
         }
 
         .container {
@@ -25,10 +24,8 @@
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%; /* Full width */
-            height: 100%;
-            max-width: 1200px; /* Maximum width */
-            box-sizing: border-box;
+            width: 90%;
+            max-width: 1200px;
         }
 
         .file-list {
@@ -64,37 +61,29 @@
             height: auto;
         }
 
-        .button-container {
-            display: flex;
-            gap: 10px; /* Space between buttons */
-        }
-
-        .open-button,
-        .download-button {
-            background: none; /* No background */
+        .download-button,
+        .open-button {
+            background: #171555;
+            color: #ffffff;
             border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.3s, transform 0.2s;
+            margin: 5px;
+            display: inline-block;
         }
 
-        .open-button svg,
-        .download-button svg {
-            width: 24px;
-            height: 24px;
-            fill: #ff0000; /* SVG fill color */
-            transition: fill 0.3s;
+        .download-button:hover,
+        .open-button:hover {
+            background: #0056b3;
         }
 
-        .open-button:hover svg,
-        .download-button:hover svg {
-            fill: #0056b3; /* Change SVG fill color on hover */
-        }
-
-        .open-button:active,
-        .download-button:active {
+        .download-button:active,
+        .open-button:active {
             transform: scale(0.98);
         }
     </style>
@@ -168,19 +157,19 @@
 
                         listItem.appendChild(filePreview);
 
-                        // Create open link with SVG button
+                        // Create open link
                         const openLink = document.createElement('a');
                         openLink.href = file.url; // Use direct URL from Firebase Storage
                         openLink.target = '_blank';
+                        openLink.textContent = 'Open';
                         openLink.className = 'open-button';
-                        openLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8l-6-5zM5 21V5h8v4h4v12H5zm12-6h-4v-2h4v2z"/></svg>`;
-                        
-                        // Create download link with SVG button
+
+                        // Create download link
                         const downloadLink = document.createElement('a');
                         downloadLink.href = file.url; // Use direct URL from Firebase Storage
                         downloadLink.download = file.name;
+                        downloadLink.textContent = 'Download';
                         downloadLink.className = 'download-button';
-                        downloadLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11 15H7v-4h4v4zm5 0h-4v-4h4v4zm1-6V3H4v6h12zM21 2h-6v4H5V2H2v14h3v4h14v-4h3V2zm-2 12H3V4h16v10z"/></svg>`;
 
                         listItem.appendChild(openLink);
                         listItem.appendChild(downloadLink);
